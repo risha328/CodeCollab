@@ -90,6 +90,88 @@ const getFile = async (req, res) => {
   }
 };
 
+const getFileContent = async (req, res) => {
+  try {
+    const { projectId, fileId } = req.params;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const file = await File.findOne({ _id: fileId, projectId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    if (file.type !== 'file') {
+      return res.status(400).json({ message: 'Cannot get content of a folder' });
+    }
+
+    res.json({ content: file.content });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const updateFileContent = async (req, res) => {
+  try {
+    const { projectId, fileId } = req.params;
+    const { content } = req.body;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const file = await File.findOne({ _id: fileId, projectId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    if (file.type !== 'file') {
+      return res.status(400).json({ message: 'Cannot update content of a folder' });
+    }
+
+    file.content = content;
+    await file.save();
+
+    res.json({ message: 'File content updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const renameFile = async (req, res) => {
+  try {
+    const { projectId, fileId } = req.params;
+    const { name } = req.body;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const file = await File.findOne({ _id: fileId, projectId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    file.name = name;
+    await file.save();
+
+    res.json({
+      message: 'File/Folder renamed successfully',
+      file
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 const updateFile = async (req, res) => {
   try {
     const { projectId, fileId } = req.params;
@@ -148,6 +230,9 @@ module.exports = {
   createFile,
   getFiles,
   getFile,
+  getFileContent,
+  updateFileContent,
+  renameFile,
   updateFile,
   deleteFile
 };
