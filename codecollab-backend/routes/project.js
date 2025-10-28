@@ -9,6 +9,8 @@ const {
   addCollaborator,
   getCollaborators,
   removeCollaborator,
+  getProjectSettings,
+  updateProjectSettings,
   deleteProject
 } = require('../controllers/projectController');
 
@@ -22,6 +24,10 @@ router.put('/:projectId', auth, updateProject);
 router.post('/:projectId/collaborators', auth, addCollaborator);
 router.get('/:projectId/collaborators', auth, getCollaborators);
 router.delete('/:projectId/collaborators/:userId', auth, removeCollaborator);
+
+// Settings routes
+router.get('/:projectId/settings', auth, getProjectSettings);
+router.put('/:projectId/settings', auth, updateProjectSettings);
 
 router.delete('/:projectId', auth, deleteProject);
 

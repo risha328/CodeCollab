@@ -14,7 +14,7 @@ const activitySchema = new mongoose.Schema({
   action: {
     type: String,
     required: true,
-    enum: ['project_created', 'file_created', 'file_updated', 'file_deleted', 'folder_created', 'folder_deleted', 'collaborator_added', 'collaborator_removed', 'project_updated']
+    enum: ['project_created', 'file_created', 'file_updated', 'file_deleted', 'folder_created', 'folder_deleted', 'collaborator_added', 'collaborator_removed', 'project_updated', 'settings_updated']
   },
   details: {
     type: mongoose.Schema.Types.Mixed,

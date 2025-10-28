@@ -218,6 +218,89 @@ const removeCollaborator = async (req, res) => {
   }
 };
 
+const getProjectSettings = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    // Check if project exists and user has access (owner or collaborator)
+    const project = await Project.findOne({
+      _id: projectId,
+      $or: [
+        { owner: req.user.userId },
+        { collaborators: req.user.userId }
+      ]
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found or access denied' });
+    }
+
+    // Return settings (visibility and permissions)
+    const settings = {
+      visibility: project.visibility,
+      permissions: {
+        allowCollaboratorsToEdit: project.allowCollaboratorsToEdit || false,
+        allowPublicRead: project.allowPublicRead || false
+      }
+    };
+
+    res.json({ settings });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const updateProjectSettings = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { visibility, permissions } = req.body;
+
+    // Check if project exists and user is owner
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found or access denied' });
+    }
+
+    // Update settings
+    if (visibility) project.visibility = visibility;
+    if (permissions) {
+      project.allowCollaboratorsToEdit = permissions.allowCollaboratorsToEdit;
+      project.allowPublicRead = permissions.allowPublicRead;
+    }
+
+    await project.save();
+
+    // Log activity
+    try {
+      const activity = new Activity({
+        projectId,
+        userId: req.user.userId,
+        action: 'settings_updated',
+        details: {
+          visibility,
+          permissions
+        }
+      });
+      await activity.save();
+    } catch (error) {
+      console.error('Failed to log settings update activity:', error);
+    }
+
+    res.json({
+      message: 'Project settings updated successfully',
+      settings: {
+        visibility: project.visibility,
+        permissions: {
+          allowCollaboratorsToEdit: project.allowCollaboratorsToEdit,
+          allowPublicRead: project.allowPublicRead
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 const deleteProject = async (req, res) => {
   try {
     const project = await Project.findOneAndDelete({
@@ -243,5 +326,7 @@ module.exports = {
   addCollaborator,
   getCollaborators,
   removeCollaborator,
+  getProjectSettings,
+  updateProjectSettings,
   deleteProject
 };

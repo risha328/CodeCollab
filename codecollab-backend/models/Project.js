@@ -23,7 +23,15 @@ const projectSchema = new mongoose.Schema({
   collaborators: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  allowCollaboratorsToEdit: {
+    type: Boolean,
+    default: false
+  },
+  allowPublicRead: {
+    type: Boolean,
+    default: false
+  }
 }, {
   timestamps: true
 });
