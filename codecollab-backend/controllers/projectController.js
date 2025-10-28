@@ -301,6 +301,73 @@ const updateProjectSettings = async (req, res) => {
   }
 };
 
+const searchProjects = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    // Search projects where user is owner, collaborator, or project is public
+    const projects = await Project.find({
+      $and: [
+        {
+          $or: [
+            { owner: req.user.userId },
+            { collaborators: req.user.userId },
+            { visibility: 'public' }
+          ]
+        },
+        {
+          $or: [
+            { name: { $regex: q, $options: 'i' } },
+            { description: { $regex: q, $options: 'i' } }
+          ]
+        }
+      ]
+    }).populate('owner', 'name email');
+
+    res.json({ projects });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const searchProjectFiles = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { q } = req.query;
+
+    if (!q) {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    // Check if project exists and user has access
+    const project = await Project.findOne({
+      _id: projectId,
+      $or: [
+        { owner: req.user.userId },
+        { collaborators: req.user.userId },
+        { visibility: 'public' }
+      ]
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found or access denied' });
+    }
+
+    // Search files by name
+    const files = await File.find({
+      projectId,
+      name: { $regex: q, $options: 'i' }
+    });
+
+    res.json({ files });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 const deleteProject = async (req, res) => {
   try {
     const project = await Project.findOneAndDelete({
@@ -328,5 +395,7 @@ module.exports = {
   removeCollaborator,
   getProjectSettings,
   updateProjectSettings,
+  searchProjects,
+  searchProjectFiles,
   deleteProject
 };

@@ -11,12 +11,19 @@ const {
   removeCollaborator,
   getProjectSettings,
   updateProjectSettings,
+  searchProjects,
+  searchProjectFiles,
   deleteProject
 } = require('../controllers/projectController');
 
 // All routes are protected
 router.post('/', auth, createProject);
 router.get('/', auth, getProjects);
+
+// Search routes (must come before parameterized routes)
+router.get('/search', auth, searchProjects);
+router.get('/:projectId/files/search', auth, searchProjectFiles);
+
 router.get('/:projectId', auth, getProject);
 router.put('/:projectId', auth, updateProject);
 
