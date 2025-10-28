@@ -1,6 +1,7 @@
 const Project = require('../models/Project');
 const File = require('../models/File');
 const User = require('../models/User');
+const Activity = require('../models/Activity');
 
 // Helper function to recursively delete files and folders
 const deleteNestedFiles = async (projectId, parentId = null) => {
@@ -23,6 +24,23 @@ const createProject = async (req, res) => {
       owner: req.user.userId
     });
     await project.save();
+
+    // Log activity
+    try {
+      const activity = new Activity({
+        projectId: project._id,
+        userId: req.user.userId,
+        action: 'project_created',
+        details: {
+          projectName: name,
+          visibility
+        }
+      });
+      await activity.save();
+    } catch (error) {
+      console.error('Failed to log project creation activity:', error);
+    }
+
     res.status(201).json({
       message: 'Project created successfully',
       project
@@ -102,6 +120,22 @@ const addCollaborator = async (req, res) => {
     project.collaborators.push(userId);
     await project.save();
 
+    // Log activity
+    try {
+      const activity = new Activity({
+        projectId,
+        userId: req.user.userId,
+        action: 'collaborator_added',
+        details: {
+          addedUserId: userId,
+          addedUserName: user.name
+        }
+      });
+      await activity.save();
+    } catch (error) {
+      console.error('Failed to log collaborator addition activity:', error);
+    }
+
     res.json({
       message: 'Collaborator added successfully',
       project
@@ -152,9 +186,28 @@ const removeCollaborator = async (req, res) => {
       return res.status(400).json({ message: 'User is not a collaborator' });
     }
 
+    // Get user details for logging
+    const removedUser = await User.findById(userId);
+
     // Remove collaborator
     project.collaborators = project.collaborators.filter(id => id.toString() !== userId);
     await project.save();
+
+    // Log activity
+    try {
+      const activity = new Activity({
+        projectId,
+        userId: req.user.userId,
+        action: 'collaborator_removed',
+        details: {
+          removedUserId: userId,
+          removedUserName: removedUser ? removedUser.name : 'Unknown'
+        }
+      });
+      await activity.save();
+    } catch (error) {
+      console.error('Failed to log collaborator removal activity:', error);
+    }
 
     res.json({
       message: 'Collaborator removed successfully',

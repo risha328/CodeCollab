@@ -1,5 +1,7 @@
 const File = require('../models/File');
 const Project = require('../models/Project');
+const Activity = require('../models/Activity');
+const Version = require('../models/Version');
 
 // Helper function to recursively delete files and folders
 const deleteNestedFiles = async (fileId) => {
@@ -43,6 +45,42 @@ const createFile = async (req, res) => {
     });
 
     await file.save();
+
+    // Create initial version for files
+    if (type === 'file') {
+      try {
+        const version = new Version({
+          projectId,
+          fileId: file._id,
+          versionNumber: 1,
+          content: content || '',
+          changes: 'Initial file creation',
+          createdBy: req.user.userId
+        });
+        await version.save();
+      } catch (error) {
+        console.error('Failed to create initial version:', error);
+      }
+    }
+
+    // Log activity
+    try {
+      const activity = new Activity({
+        projectId,
+        userId: req.user.userId,
+        action: type === 'folder' ? 'folder_created' : 'file_created',
+        details: {
+          fileId: file._id,
+          fileName: name,
+          fileType: type,
+          parentId
+        }
+      });
+      await activity.save();
+    } catch (error) {
+      console.error('Failed to log file creation activity:', error);
+    }
+
     res.status(201).json({
       message: 'File/Folder created successfully',
       file
@@ -135,8 +173,37 @@ const updateFileContent = async (req, res) => {
       return res.status(400).json({ message: 'Cannot update content of a folder' });
     }
 
+    // Create version before updating
+    const versionNumber = await Version.countDocuments({ fileId }) + 1;
+    const version = new Version({
+      projectId,
+      fileId,
+      versionNumber,
+      content: file.content,
+      changes: 'Auto-saved before update',
+      createdBy: req.user.userId
+    });
+    await version.save();
+
     file.content = content;
     await file.save();
+
+    // Log activity
+    try {
+      const activity = new Activity({
+        projectId,
+        userId: req.user.userId,
+        action: 'file_updated',
+        details: {
+          fileId: file._id,
+          fileName: file.name,
+          versionNumber
+        }
+      });
+      await activity.save();
+    } catch (error) {
+      console.error('Failed to log file update activity:', error);
+    }
 
     res.json({ message: 'File content updated successfully' });
   } catch (error) {
@@ -215,6 +282,23 @@ const deleteFile = async (req, res) => {
     const file = await File.findOne({ _id: fileId, projectId });
     if (!file) {
       return res.status(404).json({ message: 'File not found' });
+    }
+
+    // Log activity before deletion
+    try {
+      const activity = new Activity({
+        projectId,
+        userId: req.user.userId,
+        action: file.type === 'folder' ? 'folder_deleted' : 'file_deleted',
+        details: {
+          fileId: file._id,
+          fileName: file.name,
+          fileType: file.type
+        }
+      });
+      await activity.save();
+    } catch (error) {
+      console.error('Failed to log file deletion activity:', error);
     }
 
     // Delete recursively if folder

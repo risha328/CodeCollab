@@ -7,6 +7,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoute');
 const projectRoutes = require('./routes/project');
 const fileRoutes = require('./routes/files');
+const activityRoutes = require('./routes/activity');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/files', fileRoutes);
+app.use('/api/projects/:projectId', activityRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
