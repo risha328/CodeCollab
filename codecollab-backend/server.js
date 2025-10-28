@@ -5,6 +5,8 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 
 const authRoutes = require('./routes/authRoute');
+const projectRoutes = require('./routes/project');
+const fileRoutes = require('./routes/files');
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/projects/:projectId/files', fileRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

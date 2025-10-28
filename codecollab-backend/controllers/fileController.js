@@ -1,0 +1,153 @@
+const File = require('../models/File');
+const Project = require('../models/Project');
+
+// Helper function to recursively delete files and folders
+const deleteNestedFiles = async (fileId) => {
+  const file = await File.findById(fileId);
+  if (!file) return;
+
+  if (file.type === 'folder') {
+    const children = await File.find({ parentId: fileId });
+    for (const child of children) {
+      await deleteNestedFiles(child._id);
+    }
+  }
+  await File.findByIdAndDelete(fileId);
+};
+
+const createFile = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { name, type, content, parentId } = req.body;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // If parentId provided, check if it exists and is a folder
+    if (parentId) {
+      const parent = await File.findOne({ _id: parentId, projectId, type: 'folder' });
+      if (!parent) {
+        return res.status(400).json({ message: 'Invalid parent folder' });
+      }
+    }
+
+    const file = new File({
+      name,
+      type,
+      content: type === 'file' ? content : '',
+      parentId: parentId || null,
+      projectId
+    });
+
+    await file.save();
+    res.status(201).json({
+      message: 'File/Folder created successfully',
+      file
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const getFiles = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const files = await File.find({ projectId });
+    res.json({ files });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const getFile = async (req, res) => {
+  try {
+    const { projectId, fileId } = req.params;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const file = await File.findOne({ _id: fileId, projectId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    res.json({ file });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const updateFile = async (req, res) => {
+  try {
+    const { projectId, fileId } = req.params;
+    const { name, content } = req.body;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const file = await File.findOne({ _id: fileId, projectId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    // Update fields
+    if (name) file.name = name;
+    if (content !== undefined && file.type === 'file') file.content = content;
+
+    await file.save();
+    res.json({
+      message: 'File/Folder updated successfully',
+      file
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const deleteFile = async (req, res) => {
+  try {
+    const { projectId, fileId } = req.params;
+
+    // Check if project exists and user owns it
+    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const file = await File.findOne({ _id: fileId, projectId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    // Delete recursively if folder
+    await deleteNestedFiles(fileId);
+
+    res.json({ message: 'File/Folder deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = {
+  createFile,
+  getFiles,
+  getFile,
+  updateFile,
+  deleteFile
+};
