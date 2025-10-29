@@ -52,7 +52,12 @@ const createProject = async (req, res) => {
 
 const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find({ owner: req.user.userId });
+    const projects = await Project.find({
+      $or: [
+        { owner: req.user.userId },
+        { collaborators: req.user.userId }
+      ]
+    });
     res.json({ projects });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -63,7 +68,10 @@ const getProject = async (req, res) => {
   try {
     const project = await Project.findOne({
       _id: req.params.projectId,
-      owner: req.user.userId
+      $or: [
+        { owner: req.user.userId },
+        { collaborators: req.user.userId }
+      ]
     });
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
@@ -105,19 +113,27 @@ const addCollaborator = async (req, res) => {
       return res.status(404).json({ message: 'Project not found' });
     }
 
-    // Check if user to add exists
-    const user = await User.findById(userId);
+    let user;
+    // Check if userId is an email or user ID
+    if (userId.includes('@')) {
+      // It's an email, find user by email
+      user = await User.findOne({ email: userId });
+    } else {
+      // It's a user ID
+      user = await User.findById(userId);
+    }
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Check if user is already a collaborator
-    if (project.collaborators.includes(userId)) {
+    if (project.collaborators.includes(user._id)) {
       return res.status(400).json({ message: 'User is already a collaborator' });
     }
 
     // Add collaborator
-    project.collaborators.push(userId);
+    project.collaborators.push(user._id);
     await project.save();
 
     // Log activity
@@ -127,7 +143,7 @@ const addCollaborator = async (req, res) => {
         userId: req.user.userId,
         action: 'collaborator_added',
         details: {
-          addedUserId: userId,
+          addedUserId: user._id,
           addedUserName: user.name
         }
       });
@@ -333,6 +349,28 @@ const searchProjects = async (req, res) => {
   }
 };
 
+const searchUsers = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q) {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    // Search users by name or email
+    const users = await User.find({
+      $or: [
+        { name: { $regex: q, $options: 'i' } },
+        { email: { $regex: q, $options: 'i' } }
+      ]
+    }).select('name email _id');
+
+    res.json({ users });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 const searchProjectFiles = async (req, res) => {
   try {
     const { projectId } = req.params;
@@ -396,6 +434,7 @@ module.exports = {
   getProjectSettings,
   updateProjectSettings,
   searchProjects,
+  searchUsers,
   searchProjectFiles,
   deleteProject
 };

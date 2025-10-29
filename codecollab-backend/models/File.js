@@ -15,6 +15,10 @@ const fileSchema = new mongoose.Schema({
     type: String,
     default: '' // Only for files
   },
+  language: {
+    type: String,
+    default: 'plaintext' // Programming language for syntax highlighting
+  },
   parentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'File',

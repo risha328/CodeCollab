@@ -12,6 +12,7 @@ const {
   getProjectSettings,
   updateProjectSettings,
   searchProjects,
+  searchUsers,
   searchProjectFiles,
   deleteProject
 } = require('../controllers/projectController');
@@ -22,6 +23,7 @@ router.get('/', auth, getProjects);
 
 // Search routes (must come before parameterized routes)
 router.get('/search', auth, searchProjects);
+router.get('/search-users', auth, searchUsers);
 router.get('/:projectId/files/search', auth, searchProjectFiles);
 
 router.get('/:projectId', auth, getProject);

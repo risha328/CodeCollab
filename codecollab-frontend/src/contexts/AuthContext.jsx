@@ -13,12 +13,27 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Optionally, validate token by fetching profile
-      // For now, assume token is valid
-      setUser({ token });
+      // Fetch user profile to get user details including id
+      fetchUserProfile();
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const { getProfile } = await import('../api/auth');
+      const userData = await getProfile();
+      setUser(userData.user);
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      // If profile fetch fails, clear token and user
+      localStorage.removeItem('token');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const login = (userData, token) => {
     localStorage.setItem('token', token);

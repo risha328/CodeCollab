@@ -94,8 +94,14 @@ const getFiles = async (req, res) => {
   try {
     const { projectId } = req.params;
 
-    // Check if project exists and user owns it
-    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    // Check if project exists and user has access (owner or collaborator)
+    const project = await Project.findOne({
+      _id: projectId,
+      $or: [
+        { owner: req.user.userId },
+        { collaborators: req.user.userId }
+      ]
+    });
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
@@ -111,8 +117,14 @@ const getFile = async (req, res) => {
   try {
     const { projectId, fileId } = req.params;
 
-    // Check if project exists and user owns it
-    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    // Check if project exists and user has access (owner or collaborator)
+    const project = await Project.findOne({
+      _id: projectId,
+      $or: [
+        { owner: req.user.userId },
+        { collaborators: req.user.userId }
+      ]
+    });
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
@@ -132,8 +144,14 @@ const getFileContent = async (req, res) => {
   try {
     const { projectId, fileId } = req.params;
 
-    // Check if project exists and user owns it
-    const project = await Project.findOne({ _id: projectId, owner: req.user.userId });
+    // Check if project exists and user has access (owner or collaborator)
+    const project = await Project.findOne({
+      _id: projectId,
+      $or: [
+        { owner: req.user.userId },
+        { collaborators: req.user.userId }
+      ]
+    });
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
