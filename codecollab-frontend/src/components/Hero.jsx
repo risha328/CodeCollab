@@ -85,7 +85,7 @@ const Hero = () => {
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
-                    to="/register"
+                    to="/projects"
                     className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25"
                   >
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
