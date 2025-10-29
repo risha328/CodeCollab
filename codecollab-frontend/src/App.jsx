@@ -13,68 +13,78 @@ import Home from './pages/Home';
 import PrivateRoute from './components/PrivateRoute';
 import FeaturesPage from './pages/FeaturesPage';
 import WorkflowPage from './pages/WorkflowPage';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import CommunityPage from './pages/CommunityPage';
+import EditorDemoPage from './pages/EditorDemoPage';
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <ProfilePage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/projects"
-              element={
-                <PrivateRoute>
-                  <ProjectsPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/projects/:projectId"
-              element={
-                <PrivateRoute>
-                  <ProjectDetailPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/projects/:projectId/files"
-              element={
-                <PrivateRoute>
-                  <FileManagerPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/projects/:projectId/activity"
-              element={
-                <PrivateRoute>
-                  <ActivityPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/projects/:projectId/editor/:fileId"
-              element={
-                <PrivateRoute>
-                  <EditorPage />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/features" element={<FeaturesPage />} />
-            <Route path="/workflow" element={<WorkflowPage />} />
-            {/* <Route path="/" element={<RedirectHome />} /> */}
-            <Route path="/" element={<Home />} />
-
-          </Routes>
+        <div className="App min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute>
+                    <ProfilePage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects"
+                element={
+                  <PrivateRoute>
+                    <ProjectsPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId"
+                element={
+                  <PrivateRoute>
+                    <ProjectDetailPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId/files"
+                element={
+                  <PrivateRoute>
+                    <FileManagerPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId/activity"
+                element={
+                  <PrivateRoute>
+                    <ActivityPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId/editor/:fileId"
+                element={
+                  <PrivateRoute>
+                    <EditorPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/features" element={<FeaturesPage />} />
+              <Route path="/workflow" element={<WorkflowPage />} />
+              <Route path="/community" element={<CommunityPage />} />
+              <Route path="/edit" element={<EditorDemoPage/>} />
+              {/* <Route path="/" element={<RedirectHome />} /> */}
+              <Route path="/" element={<Home />} />
+            </Routes>
+          </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>

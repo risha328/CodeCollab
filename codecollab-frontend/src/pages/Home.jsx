@@ -6,19 +6,18 @@ import CodeEditorPreview from '../components/CodeEditorPreview';
 import Workflow from '../components/Workflow';
 import FAQNewsletter from '../components/FAQNewsletter';
 import Footer from '../components/Footer';
+import Pricing from '../components/Pricing';
 
 const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       <Hero />
       <Features />
 
       <CodeEditorPreview />
       <Workflow />
+      <Pricing />
       <FAQNewsletter />
-
-      <Footer/>
     </div>
   );
 };

@@ -34,18 +34,18 @@ const Workflow = () => {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-900 to-gray-800">
+    <section className="py-16 bg-gradient-to-b from-white to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-medium mb-4">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-sm font-medium mb-4">
             ⚡ Quick Start
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Start Coding Together in
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"> 4 Simple Steps</span>
+            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"> 4 Simple Steps</span>
           </h2>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Get your team collaborating in minutes with our streamlined workflow.
           </p>
         </div>
@@ -54,7 +54,7 @@ const Workflow = () => {
         <div className="relative">
           {/* Connecting Line */}
           <div className="hidden md:block absolute left-0 right-0 top-12 h-0.5 bg-gradient-to-r from-blue-500 via-green-500 via-purple-500 to-orange-500 transform -translate-y-1/2"></div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step, index) => (
               <div
@@ -65,16 +65,16 @@ const Workflow = () => {
                 <div className={`relative mx-auto mb-6 w-20 h-20 rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center text-white text-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
                   {step.icon}
                   {/* Step Number */}
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-900 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full border-2 border-gray-300 flex items-center justify-center text-xs font-bold text-gray-900">
                     {step.number}
                   </div>
                 </div>
 
                 {/* Content */}
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                   {step.title}
                 </h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-600 text-sm leading-relaxed">
                   {step.description}
                 </p>
 

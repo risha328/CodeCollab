@@ -131,9 +131,10 @@ const ProjectDetailPage = () => {
   const isCollaborator = collaborators.collaborators.some(collaborator => collaborator._id === user?.id);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 pt-20 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <Link to="/projects" className="text-indigo-600 hover:text-indigo-800">&larr; Back to Projects</Link>
+        <Link to="/projects" className="text-white hover:text-gray-300">&larr; Back to Projects</Link>
       </div>
 
       {error && (
@@ -351,6 +352,7 @@ const ProjectDetailPage = () => {
         >
           Manage Files
         </Link>
+      </div>
       </div>
     </div>
   );

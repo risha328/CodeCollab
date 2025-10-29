@@ -234,9 +234,9 @@ const FeaturesPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white pt-20">
       {/* Header */}
-      <header className="relative pt-20 pb-16">
+      <header className="relative pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-medium mb-6">
             🚀 Powerful Features
@@ -365,7 +365,7 @@ const FeaturesPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16">
+      {/* <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
@@ -386,7 +386,7 @@ const FeaturesPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };

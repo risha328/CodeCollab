@@ -172,7 +172,7 @@ const WorkflowPage = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-800 to-gray-900">
+    <section className="pt-20 pb-20 bg-gradient-to-b from-gray-800 to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -281,7 +281,7 @@ const WorkflowPage = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 text-center">
+        {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 text-center">
           <div>
             <div className="text-2xl md:text-3xl font-bold text-blue-400 mb-2">85%</div>
             <div className="text-gray-400 text-sm">Faster Onboarding</div>
@@ -298,7 +298,7 @@ const WorkflowPage = () => {
             <div className="text-2xl md:text-3xl font-bold text-cyan-400 mb-2">24/7</div>
             <div className="text-gray-400 text-sm">Team Collaboration</div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

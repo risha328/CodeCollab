@@ -36,36 +36,36 @@ const Navbar = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => scrollToSection('hero')}
+            <Link
+              to="/"
               className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Home
-            </button>
-            <button
-              onClick={() => scrollToSection('features')}
+            </Link>
+            <Link
+              to="/features"
               className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Features
-            </button>
-            <button
-              onClick={() => scrollToSection('workflow')}
+            </Link>
+            <Link
+              to="/workflow"
               className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Workflow
-            </button>
-            <button
-              onClick={() => scrollToSection('editor-demo')}
+            </Link>
+            <Link
+              to="/edit"
               className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Editor Demo
-            </button>
-            <button
-              onClick={() => scrollToSection('community')}
+            </Link>
+            <Link
+              to="/community"
               className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Community
-            </button>
+            </Link>
             <button
               onClick={() => scrollToSection('pricing')}
               className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -131,24 +131,24 @@ const Navbar = () => {
       {/* Mobile menu */}
       <div className="md:hidden">
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <button
-            onClick={() => scrollToSection('hero')}
+          <Link
+            to="/"
             className="text-gray-700 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium"
           >
             Home
-          </button>
-          <button
-            onClick={() => scrollToSection('features')}
+          </Link>
+          <Link
+            to="/features"
             className="text-gray-700 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium"
           >
             Features
-          </button>
-          <button
-            onClick={() => scrollToSection('workflow')}
+          </Link>
+          <Link
+            to="/workflow"
             className="text-gray-700 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium"
           >
             Workflow
-          </button>
+          </Link>
           <button
             onClick={() => scrollToSection('editor-demo')}
             className="text-gray-700 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium"

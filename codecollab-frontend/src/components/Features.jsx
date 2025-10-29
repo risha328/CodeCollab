@@ -60,19 +60,19 @@ const Features = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800">
+    <section className="py-20 bg-gradient-to-b from-white to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 border border-blue-200 text-blue-700 text-sm font-medium mb-6">
             ✨ Powerful Features
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Everything You Need to
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Code Together</span>
+            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"> Code Together</span>
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            CodeCollab provides all the tools your team needs to collaborate effectively, 
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            CodeCollab provides all the tools your team needs to collaborate effectively,
             from real-time editing to integrated communication.
           </p>
         </div>
@@ -82,30 +82,30 @@ const Features = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group relative bg-gray-800/50 rounded-2xl border border-gray-700 p-6 hover:border-gray-600 transition-all duration-300 hover:transform hover:scale-105"
+              className="group relative bg-white rounded-2xl border border-gray-300 p-6 hover:border-gray-400 transition-all duration-300 hover:transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               {/* Gradient Border Effect */}
               <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${getColorClasses(feature.color)} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-              
+
               {/* Icon */}
               <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r ${getColorClasses(feature.color)} mb-4 text-2xl`}>
                 {feature.icon}
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-bold text-white mb-3 group-hover:text-gray-100 transition-colors">
+              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors">
                 {feature.title}
               </h3>
-              
-              <p className="text-gray-300 mb-4 leading-relaxed">
+
+              <p className="text-gray-600 mb-4 leading-relaxed">
                 {feature.description}
               </p>
 
               {/* Highlights */}
               <ul className="space-y-2">
                 {feature.highlights.map((highlight, idx) => (
-                  <li key={idx} className="flex items-center text-sm text-gray-400">
-                    <svg className={`w-4 h-4 mr-2 text-${feature.color}-400 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <li key={idx} className="flex items-center text-sm text-gray-500">
+                    <svg className={`w-4 h-4 mr-2 text-${feature.color}-600 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     {highlight}
