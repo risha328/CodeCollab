@@ -48,18 +48,16 @@ const EditorPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 pt-20 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-4">
-          <a href={`/projects/${projectId}/files`} className="text-white hover:text-gray-300">&larr; Back to Files</a>
-        </div>
-        <CodeEditor
-          fileId={fileId}
-          initialContent=""
-          onSave={handleSave}
-          projectId={projectId}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
+      <div className="mb-4 pt-20 px-4">
+        <a href={`/projects/${projectId}/files`} className="text-white hover:text-gray-300">&larr; Back to Files</a>
       </div>
+      <CodeEditor
+        fileId={fileId}
+        initialContent=""
+        onSave={handleSave}
+        projectId={projectId}
+      />
     </div>
   );
 };
