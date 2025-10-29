@@ -56,8 +56,8 @@ const EditorPage = () => {
         <CodeEditor
           fileId={fileId}
           initialContent=""
-          language="javascript"
           onSave={handleSave}
+          projectId={projectId}
         />
       </div>
     </div>
