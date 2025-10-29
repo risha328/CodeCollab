@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import { useAuth } from '../contexts/AuthContext';
 import { detectLanguage, getLanguageDisplayName } from '../utils/languageDetection';
 import { getFiles, createFile, renameFile, deleteFile } from '../api/files';
+import { executeCode } from '../api/execute';
 
 const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => {
   const { user } = useAuth();
@@ -151,18 +152,53 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
     }
   };
 
-  const handleRunCode = () => {
+  const handleRunCode = async () => {
     if (editorRef.current) {
       const model = editorRef.current.getModel();
       const code = model.getValue();
 
-      // For now, we'll just log the code to console
-      // In a real implementation, you'd send this to a backend service
-      // that can execute the code in a sandboxed environment
-      console.log('Running code:', code);
+      if (currentLanguage === 'javascript') {
+        // Execute JavaScript code locally and capture output
+        try {
+          // Capture console.log outputs
+          let output = '';
+          const originalLog = console.log;
+          console.log = (...args) => {
+            output += args.join(' ') + '\n';
+          };
 
-      // Show a simple alert for demonstration
-      alert(`Code execution not implemented yet.\n\nCode to run:\n${code.substring(0, 100)}${code.length > 100 ? '...' : ''}`);
+          // Execute the code
+          const result = eval(code);
+
+          // Restore console.log
+          console.log = originalLog;
+
+          // Show result in terminal
+          const finalOutput = output || (result !== undefined ? result.toString() : 'Code executed successfully');
+          setTerminalOutput(prev => prev + `\n> Running JavaScript code...\n${finalOutput}\n`);
+          setShowTerminal(true);
+        } catch (error) {
+          setTerminalOutput(prev => prev + `\n> Error running code:\n${error.message}\n`);
+          setShowTerminal(true);
+        }
+      } else {
+        // For other languages, call backend API
+        try {
+          setTerminalOutput(prev => prev + `\n> Running ${getLanguageDisplayName(currentLanguage)} code...\n`);
+          setShowTerminal(true);
+
+          const response = await executeCode(projectId, code, currentLanguage);
+
+          let output = response.output || '';
+          if (response.error) {
+            output += `\nError:\n${response.error}`;
+          }
+
+          setTerminalOutput(prev => prev + output + '\n');
+        } catch (error) {
+          setTerminalOutput(prev => prev + `\n> Error executing code:\n${error.response?.data?.message || error.message}\n`);
+        }
+      }
     }
   };
 
@@ -434,7 +470,7 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
               </div>
               <div className="flex-1 p-2 overflow-y-auto font-mono text-sm text-green-400 bg-black">
                 <div className="whitespace-pre-wrap">
-                  {terminalOutput || 'Welcome to CodeCollab Terminal\nType commands like: ls, pwd, echo hello\n'}
+                  {terminalOutput || 'Welcome to CodeCollab Terminal\nType commands like: ls, pwd, echo hello\n\nTo run JavaScript code, click the ▶ Run button above.\nFor other languages, use the terminal for basic commands.\n'}
                 </div>
               </div>
               <div className="p-2 border-t border-gray-700 flex">

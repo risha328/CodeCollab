@@ -11,6 +11,7 @@ const projectRoutes = require('./routes/project');
 const fileRoutes = require('./routes/files');
 const activityRoutes = require('./routes/activity');
 const editorRoutes = require('./routes/editor');
+const executeRoutes = require('./routes/execute');
 
 const app = express();
 const server = http.createServer(app);
@@ -35,6 +36,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/files', fileRoutes);
 app.use('/api/projects/:projectId', activityRoutes);
 app.use('/api/editor', editorRoutes);
+app.use('/api/editor/execute', executeRoutes);
 
 // Socket.io connection handling with authentication
 io.use((socket, next) => {
