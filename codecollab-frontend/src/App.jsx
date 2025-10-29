@@ -69,6 +69,14 @@ function App() {
                 }
               />
               <Route
+                path="/projects/:projectId/editor"
+                element={
+                  <PrivateRoute>
+                    <EditorPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/projects/:projectId/editor/:fileId"
                 element={
                   <PrivateRoute>

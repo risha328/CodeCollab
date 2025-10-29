@@ -198,9 +198,23 @@ const executeWithJudge0 = async (code, language) => {
   }
 
   try {
+    let processedCode = code;
+
+    // For Java, ensure the main class is named "Main"
+    if (language.toLowerCase() === 'java') {
+      // Extract class name from the code
+      const classMatch = code.match(/public\s+class\s+(\w+)/);
+      if (classMatch && classMatch[1] !== 'Main') {
+        const originalClassName = classMatch[1];
+        processedCode = code.replace(/public\s+class\s+\w+/, 'public class Main');
+        // Also replace any references to the original class name within the code
+        processedCode = processedCode.replace(new RegExp(`\\b${originalClassName}\\b`, 'g'), 'Main');
+      }
+    }
+
     // Submit code for execution
     const submitResponse = await axios.post('https://judge0-ce.p.rapidapi.com/submissions', {
-      source_code: code,
+      source_code: processedCode,
       language_id: languageId,
       stdin: '',
       expected_output: null,

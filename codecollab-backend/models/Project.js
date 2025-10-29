@@ -10,6 +10,10 @@ const projectSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  about: {
+    type: String,
+    default: ''
+  },
   visibility: {
     type: String,
     enum: ['public', 'private'],

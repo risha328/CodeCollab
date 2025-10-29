@@ -16,10 +16,11 @@ const deleteNestedFiles = async (projectId, parentId = null) => {
 
 const createProject = async (req, res) => {
   try {
-    const { name, description, visibility } = req.body;
+    const { name, description, about, visibility } = req.body;
     const project = new Project({
       name,
       description,
+      about,
       visibility,
       owner: req.user.userId
     });
@@ -84,10 +85,10 @@ const getProject = async (req, res) => {
 
 const updateProject = async (req, res) => {
   try {
-    const { name, description, visibility } = req.body;
+    const { name, description, about, visibility } = req.body;
     const project = await Project.findOneAndUpdate(
       { _id: req.params.projectId, owner: req.user.userId },
-      { name, description, visibility },
+      { name, description, about, visibility },
       { new: true, runValidators: true }
     );
     if (!project) {

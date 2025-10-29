@@ -62,8 +62,10 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
 
     setSocket(newSocket);
 
-    // Join file room
-    newSocket.emit('join-file', { fileId });
+    // Only join file room if fileId is provided
+    if (fileId) {
+      newSocket.emit('join-file', { fileId });
+    }
 
     // Listen for initial file content
     newSocket.on('file-content', (data) => {
@@ -94,7 +96,10 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
     // Listen for errors
     newSocket.on('error', (error) => {
       console.error('Socket error:', error);
-      alert('Connection error: ' + error.message);
+      // Only show alert for critical errors, not for "File not found" when no fileId
+      if (fileId && error.message !== 'File not found') {
+        alert('Connection error: ' + error.message);
+      }
     });
 
     return () => {
@@ -118,7 +123,7 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
 
     // Listen for cursor position changes
     editor.onDidChangeCursorPosition((e) => {
-      if (socket) {
+      if (socket && fileId) {
         socket.emit('cursor-move', {
           fileId,
           position: e.position,
@@ -137,7 +142,7 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
     setContent(value);
 
     // Emit changes to other users
-    if (socket) {
+    if (socket && fileId) {
       socket.emit('edit', {
         fileId,
         content: value,
@@ -394,7 +399,7 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <span className="text-blue-400">📄</span>
-              <span className="text-white text-sm font-medium">{fileId}</span>
+              <span className="text-white text-sm font-medium">{fileId || 'New File'}</span>
             </div>
             <div className="text-gray-500 text-xs">•</div>
             <span className="text-gray-400 text-xs">{getLanguageDisplayName(currentLanguage)}</span>
