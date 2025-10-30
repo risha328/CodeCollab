@@ -24,6 +24,7 @@ export const detectLanguage = (filename) => {
     'cpp': 'cpp',
     'cc': 'cpp',
     'cxx': 'cpp',
+    'c++': 'cpp',
     'h': 'c',
     'hpp': 'cpp',
     'hxx': 'cpp',

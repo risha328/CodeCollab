@@ -19,9 +19,13 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
   const [showTerminal, setShowTerminal] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState('');
   const [terminalInput, setTerminalInput] = useState('');
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [isWaitingForInput, setIsWaitingForInput] = useState(false);
+  const [inputPrompt, setInputPrompt] = useState('');
   const editorRef = useRef(null);
   const isRemoteChange = useRef(false);
   const terminalRef = useRef(null);
+  const terminalOutputRef = useRef(null);
 
   useEffect(() => {
     // Load project files
@@ -172,19 +176,47 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
             output += args.join(' ') + '\n';
           };
 
+          // Create a custom prompt function
+          const originalPrompt = window.prompt;
+          window.prompt = (message) => {
+            setInputPrompt(message);
+            setIsWaitingForInput(true);
+            setTerminalOutput(prev => prev + `\n${message}\n`);
+            setShowTerminal(true);
+            return new Promise((resolve) => {
+              // Store the resolve function to be called when input is received
+              window.resolvePrompt = resolve;
+              window.originalLog = originalLog;
+              window.originalPrompt = originalPrompt;
+            });
+          };
+
           // Execute the code
           const result = eval(code);
 
-          // Restore console.log
-          console.log = originalLog;
+          // If no prompt was called, restore immediately
+          if (!window.resolvePrompt) {
+            // Restore console.log
+            console.log = originalLog;
+            window.prompt = originalPrompt;
 
-          // Show result in terminal
-          const finalOutput = output || (result !== undefined ? result.toString() : 'Code executed successfully');
-          setTerminalOutput(prev => prev + `\n> Running JavaScript code...\n${finalOutput}\n`);
-          setShowTerminal(true);
+            // Show result in terminal
+            const finalOutput = output || (result !== undefined ? result.toString() : 'Code executed successfully');
+            setTerminalOutput(prev => prev + `\n> Running JavaScript code...\n${finalOutput}\n`);
+            setShowTerminal(true);
+          } else {
+            // Code is waiting for input, don't restore yet
+            setTerminalOutput(prev => prev + `\n> Running JavaScript code...\n${output}`);
+            setShowTerminal(true);
+          }
         } catch (error) {
           setTerminalOutput(prev => prev + `\n> Error running code:\n${error.message}\n`);
           setShowTerminal(true);
+          // Restore functions on error
+          console.log = originalLog;
+          window.prompt = originalPrompt;
+          setIsWaitingForInput(false);
+          setInputPrompt('');
         }
       } else {
         // For other languages, call backend API
@@ -315,27 +347,63 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
 
   // Handle terminal commands
   const handleTerminalCommand = async (command) => {
-    if (command.trim()) {
-      setTerminalOutput(prev => prev + `\n$ ${command}\n`);
-      try {
-        // For now, simulate terminal commands
-        // In a real implementation, this would send commands to a backend
-        if (command === 'ls') {
-          const fileList = files.map(f => f.name).join('\n');
-          setTerminalOutput(prev => prev + fileList + '\n');
-        } else if (command === 'pwd') {
-          setTerminalOutput(prev => prev + `/projects/${projectId}\n`);
-        } else if (command.startsWith('echo ')) {
-          setTerminalOutput(prev => prev + command.substring(5) + '\n');
-        } else {
-          setTerminalOutput(prev => prev + `Command not found: ${command}\n`);
-        }
-      } catch (error) {
-        setTerminalOutput(prev => prev + `Error: ${error.message}\n`);
+    if (isWaitingForInput) {
+      // This is user input for a prompt
+      if (window.resolvePrompt) {
+        window.resolvePrompt(command);
+        setTerminalOutput(prev => prev + command + '\n');
+        setIsWaitingForInput(false);
+        setInputPrompt('');
+        setTerminalInput('');
+        // Restore original functions
+        console.log = window.originalLog;
+        window.prompt = window.originalPrompt;
+        delete window.resolvePrompt;
+        delete window.originalLog;
+        delete window.originalPrompt;
       }
-      setTerminalInput('');
+    } else {
+      // Normal terminal command
+      if (command.trim()) {
+        setTerminalOutput(prev => prev + `\n$ ${command}\n`);
+        try {
+          // For now, simulate terminal commands
+          // In a real implementation, this would send commands to a backend
+          if (command === 'ls') {
+            const fileList = files.map(f => f.name).join('\n');
+            setTerminalOutput(prev => prev + fileList + '\n');
+          } else if (command === 'pwd') {
+            setTerminalOutput(prev => prev + `/projects/${projectId}\n`);
+          } else if (command.startsWith('echo ')) {
+            setTerminalOutput(prev => prev + command.substring(5) + '\n');
+          } else if (command === 'clear') {
+            setTerminalOutput('Terminal cleared.\n');
+          } else if (command === 'help') {
+            setTerminalOutput(prev => prev + 'Available commands:\n  ls - list files\n  pwd - show current directory\n  echo <text> - echo text\n  clear - clear terminal\n  help - show this help\n');
+          } else {
+            setTerminalOutput(prev => prev + `Command not found: ${command}\n`);
+          }
+        } catch (error) {
+          setTerminalOutput(prev => prev + `Error: ${error.message}\n`);
+        }
+        setTerminalInput('');
+
+        // Auto-scroll to bottom after command execution
+        setTimeout(() => {
+          if (terminalOutputRef.current) {
+            terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight;
+          }
+        }, 0);
+      }
     }
   };
+
+  // Focus terminal input when terminal is shown
+  useEffect(() => {
+    if (showTerminal && terminalRef.current) {
+      terminalRef.current.focus();
+    }
+  }, [showTerminal]);
 
   // Render file tree recursively
   const renderFileTree = (currentFiles, allFiles, level = 0) => {
@@ -469,29 +537,32 @@ const CodeEditor = ({ fileId, initialContent, language, onSave, projectId }) => 
 
           {/* Terminal */}
           {showTerminal && (
-            <div className="h-1/3 bg-gray-800 border-t border-gray-700 flex flex-col">
+            <div className="h-1/3 bg-gray-800 border-t border-gray-700 flex flex-col" onClick={() => terminalRef.current?.focus()}>
               <div className="p-2 border-b border-gray-700 text-xs text-gray-400">
                 Terminal
               </div>
-              <div className="flex-1 p-2 overflow-y-auto font-mono text-sm text-green-400 bg-black">
+              <div ref={terminalOutputRef} className="flex-1 p-2 overflow-y-auto font-mono text-sm text-green-400 bg-black max-h-full">
                 <div className="whitespace-pre-wrap">
                   {terminalOutput || 'Welcome to CodeCollab Terminal\nType commands like: ls, pwd, echo hello\n\nTo run JavaScript code, click the ▶ Run button above.\nFor other languages, use the terminal for basic commands.\n'}
                 </div>
               </div>
-              <div className="p-2 border-t border-gray-700 flex">
+              <div className="p-2 border-t border-gray-700 flex items-center">
                 <span className="text-green-400 mr-2">$</span>
                 <input
                   ref={terminalRef}
                   type="text"
                   value={terminalInput}
                   onChange={(e) => setTerminalInput(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
+                      e.preventDefault();
                       handleTerminalCommand(terminalInput);
                     }
+                    // Allow all other keys for typing
                   }}
-                  className="flex-1 bg-transparent text-green-400 outline-none font-mono text-sm"
+                  className="flex-1 bg-transparent text-green-400 outline-none font-mono text-sm border border-transparent focus:border-green-400 rounded px-1"
                   placeholder="Enter command..."
+                  autoFocus
                 />
               </div>
             </div>
